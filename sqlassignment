@@ -243,6 +243,34 @@ SELECT
     ->     COUNT(sf.student_id) > 1
     -> ORDER BY 
     ->     number_of_students DESC;
++--------------------+-----------------+
+| mall_name          | num_of_students |
++--------------------+-----------------+
+| Phoenix Marketcity |               3 |
+| Express Avenue     |               2 |
++--------------------+-----------------+
+//common beaches
+ SELECT 
+    ->     b.beach_name,
+    ->     b.location,
+    ->     COUNT(sfb.student_id) AS num_of_students
+    -> FROM 
+    ->     student_fav_beaches sfb
+    -> JOIN beaches b ON sfb.beach_id = b.beach_id
+    -> GROUP BY 
+    ->     b.beach_name, b.location
+    -> HAVING 
+    ->     COUNT(sfb.student_id) > 1
+    -> ORDER BY 
+    ->     num_of_students DESC;
++---------------------+---------------+-----------------+
+| beach_name          | location      | num_of_students |
++---------------------+---------------+-----------------+
+| Mahabalipuram Beach | Mahabalipuram |               3 |
+| Marina Beach        | Chennai       |               2 |
+| Pondicherry Beach   | Puducherry    |               2 |
++---------------------+---------------+-----------------+
+
     //common favorite movies
     SELECT 
     ->     m.movie_name,
