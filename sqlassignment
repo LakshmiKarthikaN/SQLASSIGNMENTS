@@ -1,0 +1,313 @@
+//Group students by favorite actors or actresses — great for forming mini fan clubs!
+mysql> SELECT favorite_actor,GROUP_CONCAT(s.name) AS FANS
+    -> FROM student_favorites sf
+    -> JOIN students s ON sf.student_id = s.student_id 
+    -> GROUP BY favorite_actor;
++------------------+---------------+
+| favorite_actor   | FANS          |
++------------------+---------------+
+| Dhanush          | Priya Sharma  |
+| Kamal Haasan     | Vikram Das    |
+| Rajinikanth      | Rahul Mehta   |
+| Suriya           | Aisha Khan    |
+| Vijay            | Aravind Kumar |
+| Vijay Sethupathi | Sneha Iyer    |
++------------------+---------------+
+6 rows in set (0.01 sec)
+//Personalized Meetup Suggestions
+Recommend where two or more students can spend time together based on:
+
+SELECT 
+    ->     sm.mall_name,
+    ->     sm.location,
+    ->     GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS students_who_like
+    -> FROM 
+    ->     student_fav_mall sfm
+    -> JOIN 
+    ->     shopping_malls sm ON sfm.mall_id = sm.mall_id
+    -> JOIN 
+    ->     students s ON sfm.student_id = s.student_id
+    -> GROUP BY 
+    ->     sm.mall_id
+    -> HAVING 
+    ->     COUNT(sfm.student_id) > 1;
+    //Common favorite beaches
+
+    SELECT 
+    b.beach_name,
+    b.location,
+    GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') AS students_who_like
+FROM 
+    student_fav_beaches sfb
+JOIN 
+    beachers b ON sfb.beach_id = b.beach_id
+JOIN 
+    students s ON sfb.student_id = s.student_id
+GROUP BY 
+    b.beach_name, b.location
+HAVING 
+    COUNT(sfb.student_id) > 1;
+    //who loves romantic movies
+ SELECT 
+    ->     s.name AS student_name
+    -> FROM 
+    ->     student_movie_interests smi
+    -> JOIN 
+    ->     genres g ON smi.genre_id = g.genre_id
+    -> JOIN 
+    ->     students s ON smi.student_id = s.student_id
+    -> WHERE 
+    ->     g.genre_name = 'Romance';
++---------------+
+| student_name  |
++---------------+
+| Aravind Kumar |
+| Sneha Iyer    |
+| Aisha Khan    |
++---------------+
+//most popular beach
+SELECT 
+    ->     b.beach_name,
+    ->     b.location,
+    ->     COUNT(sfb.student_id) AS num_of_students
+    -> FROM 
+    ->     student_fav_beaches sfb
+    -> JOIN beaches b  ON sfb.beach_id = b.beach_id
+    -> GROUP BY 
+    ->     b.beach_name, b.location
+    -> ORDER BY 
+    ->     num_of_students DESC
+    -> LIMIT 1;
++--------------+----------+-----------------+
+| beach_name   | location | num_of_students |
++--------------+----------+-----------------+
+| Marina Beach | Chennai  |               1 |
++--------------+----------+-----------------+
+1 row in set (0.00 sec)
+//what are the top favorite actors?
+SELECT 
+    ->     sf.favorite_actor,
+    ->     COUNT(sf.student_id) AS num_of_students
+    -> FROM 
+    ->     student_favorites sf
+    -> GROUP BY 
+    ->     sf.favorite_actor
+    -> ORDER BY 
+    ->     num_of_students DESC
+    -> LIMIT 1;
++----------------+-----------------+
+| favorite_actor | num_of_students |
++----------------+-----------------+
+| Vijay          |               1 |
++----------------+-----------------+
+//Which movie can most people agree on watching together?
+SELECT 
+    ->     g.genre_name,
+    ->     COUNT(smi.student_id) AS num_of_students
+    -> FROM 
+    ->     student_movie_interests smi
+    -> JOIN 
+    ->     genres g ON smi.genre_id = g.genre_id
+    -> GROUP BY 
+    ->     g.genre_name
+    -> ORDER BY 
+    ->     num_of_students DESC
+    -> LIMIT 1;
++------------+-----------------+
+| genre_name | num_of_students |
++------------+-----------------+
+| Action     |               3 |
++------------+-----------------+
+// Popular Culture Insights
+Most liked actor/actress
+SELECT 
+    ->     favorite_actor,
+    ->     COUNT(*) AS num_of_students
+    -> FROM 
+    ->     student_favorites
+    -> GROUP BY 
+    ->     favorite_actor
+    -> ORDER BY 
+    ->     num_of_students DESC
+    -> LIMIT 1;
++----------------+-----------------+
+| favorite_actor | num_of_students |
++----------------+-----------------+
+| Vijay          |               1 |
++----------------+-----------------+
+SELECT 
+    ->     favorite_actress,
+    ->     COUNT(*) AS num_of_students
+    -> FROM 
+    ->     student_favorites
+    -> GROUP BY 
+    ->     favorite_actress
+    -> ORDER BY 
+    ->     num_of_students DESC
+    -> LIMIT 1;
++------------------+-----------------+
+| favorite_actress | num_of_students |
++------------------+-----------------+
+| Trisha           |               2 |
+//most popular genre
+SELECT 
+    ->     g.genre_name,
+    ->     COUNT(smi.student_id) AS num_of_students
+    -> FROM 
+    ->     student_movie_interests smi
+    -> JOIN 
+    ->     genres g ON smi.genre_id = g.genre_id
+    -> GROUP BY 
+    ->     g.genre_name
+    -> ORDER BY 
+    ->     num_of_students DESC
+    -> LIMIT 1;
++------------+-----------------+
+| genre_name | num_of_students |
++------------+-----------------+
+| Action     |               3 |
++------------+-----------------+
+//Friendship & Grouping by Common Interests
+Find students who share similar movie genres (e.g., Action or Romance lovers)
+SELECT 
+    ->     g.genre_name,
+    ->     GROUP_CONCAT(s.name SEPARATOR ', ') AS students_who_like
+    -> FROM 
+    ->     student_movie_interests smi
+    -> JOIN 
+    ->     genres g ON smi.genre_id = g.genre_id
+    -> JOIN 
+    ->     students s ON smi.student_id = s.student_id
+    -> GROUP BY 
+    ->     g.genre_name
+    -> ORDER BY 
+    ->     COUNT(smi.student_id) DESC;
++------------+----------------------------------------+
+| genre_name | students_who_like                      |
++------------+----------------------------------------+
+| Action     | Aravind Kumar, Rahul Mehta, Vikram Das |
+| Romance    | Aravind Kumar, Sneha Iyer, Aisha Khan  |
+| Comedy     | Priya Sharma, Sneha Iyer               |
+| Drama      | Priya Sharma, Aisha Khan               |
+| Sci-Fi     | Vikram Das                             |
+| Thriller   | Rahul Mehta                            |
++------------+----------------------------------------+
+//Suggest ideal friend groups who share similar tastes in entertainment and hangout spots.
+
+SELECT 
+    ->     s1.name AS student_1,
+    ->     s2.name AS student_2,
+    ->     COUNT(*) AS shared_interests
+    -> FROM 
+    ->     students s1
+    -> JOIN students s2 ON s1.student_id < s2.student_id
+    -> LEFT JOIN student_favorites sf1 ON sf1.student_id = s1.student_id
+    -> LEFT JOIN student_favorites sf2 ON sf2.student_id = s2.student_id
+    -> LEFT JOIN student_movie_interests smi1 ON smi1.student_id = s1.student_id 
+    -> LEFT JOIN student_movie_interests smi2 ON smi2.student_id = s2.student_id 
+    -> LEFT JOIN student_fav_mall fm1 ON fm1.student_id = s1.student_id
+    -> LEFT JOIN student_fav_mall fm2 ON fm2.student_id = s2.student_id
+    -> LEFT JOIN student_fav_beaches sb1 ON sb1.student_id = s1.student_id
+    -> LEFT JOIN student_fav_beaches sb2 ON sb2.student_id = s2.student_id
+    -> WHERE 
+    ->     (
+    ->         sf1.favorite_actor = sf2.favorite_actor OR
+    ->         sf1.favorite_actress = sf2.favorite_actress OR
+    ->         smi1.genre_id = smi2.genre_id OR
+    ->         fm1.mall_id = fm2.mall_id OR
+    ->         sb1.beach_id = sb2.beach_id
+    ->     )
+    -> GROUP BY 
+    ->     s1.student_id, s2.student_id
+    -> HAVING 
+    ->     shared_interests >= 2
+    -> ORDER BY 
+    ->     shared_interests DESC;
++---------------+------------+------------------+
+| student_1     | student_2  | shared_interests |
++---------------+------------+------------------+
+| Aravind Kumar | Sneha Iyer |                4 |
++---------------+------------+------------------+
+//common shopping 
+SELECT 
+    ->     sm.mall_name,
+    ->     sm.location,
+    ->     COUNT(sf.student_id) AS number_of_students
+    -> FROM 
+    ->     student_fav_mall sf
+    -> JOIN 
+    ->     shopping_malls sm ON sf.mall_id = sm.mall_id
+    -> GROUP BY 
+    ->     sm.mall_name, sm.location
+    -> HAVING 
+    ->     COUNT(sf.student_id) > 1
+    -> ORDER BY 
+    ->     number_of_students DESC;
+    //common favorite movies
+    SELECT 
+    ->     m.movie_name,
+    ->     COUNT(sfm.student_id) AS num_of_students
+    -> FROM 
+    ->     student_fav_movies sfm
+    -> JOIN 
+    ->     movies m ON sfm.movie_name = m.movie_name
+    -> GROUP BY 
+    ->     m.movie_name
+    -> HAVING 
+    ->     COUNT(sfm.student_id) > 1
+    -> ORDER BY 
+    ->     num_of_students DESC;
+//top 5 favorite movies;
+ SELECT 
+    ->     m.movie_name,
+    ->     COUNT(sfm.student_id) AS num_of_students
+    -> FROM 
+    ->     student_fav_movies sfm
+    -> JOIN 
+    ->     movies m ON sfm.movie_name = m.movie_name
+    -> GROUP BY 
+    ->     m.movie_name
+    -> ORDER BY 
+    ->     num_of_students DESC
+    -> LIMIT 5;
++------------+-----------------+
+| movie_name | num_of_students |
++------------+-----------------+
+| Vikram     |               4 |
+| Bigil      |               3 |
+| Kaithi     |               3 |
+| Master     |               3 |
+| Varisu     |               2 |
++------------+-----------------+
+//common favorite movies;
+ SELECT 
+    ->     sfm.movie_name,
+    ->     COUNT(sfm.student_id) AS num_of_students
+    -> FROM 
+    ->     student_fav_movies sfm
+    -> GROUP BY 
+    ->     sfm.movie_name
+    -> HAVING 
+    ->     COUNT(sfm.student_id) > 1
+    -> ORDER BY 
+    ->     num_of_students DESC;
++------------+-----------------+
+| movie_name | num_of_students |
++------------+-----------------+
+| Vikram     |               4 |
+| Bigil      |               3 |
+| Kaithi     |               3 |
+| Master     |               3 |
+| Varisu     |               2 |
++------------+-----------------+
+                        ********USING SELF JOIN CRICKET TEAM****************
+SELECT P.PLAYERID,P.PLAYERNAME,P.CAPTAINID,C.PLAYERNAME AS CAPTAINNAME FROM PLAYERS P,PLAYERS C WHERE P.CAPTAINID = C.PLAYERID;
++----------+--------------+-----------+--------------+
+| PLAYERID | PLAYERNAME   | CAPTAINID | CAPTAINNAME  |
++----------+--------------+-----------+--------------+
+|      100 | JADEJA       |         7 | DHONI        |
+|      102 | PRITHVI SAW  |        20 | AXAR PATEL   |
+|      101 | DAVID WARNER |        20 | AXAR PATEL   |
+|      104 | RAVI BISHNOI |        17 | RISHABH BANT |
+|      103 | KL RAHUL     |        17 | RISHABH BANT |
++----------+--------------+-----------+--------------+
